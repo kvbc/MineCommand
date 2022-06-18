@@ -2,6 +2,7 @@ package io.github.kvbc.minecommand;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.command.CommandException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
@@ -63,6 +64,9 @@ public final class MineCommand extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBlockBreak (BlockBreakEvent event) {
+        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL)
+            return;
+
         // Get the block of matching type from the blocks list
         String block_type = event.getBlock().getType().toString().toLowerCase();
         List<LinkedHashMap<String,?>> cfg_block = (List<LinkedHashMap<String,?>>) getConfig().get("blocks." + block_type);
