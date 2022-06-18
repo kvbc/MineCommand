@@ -34,20 +34,21 @@ public final class MineCommand extends JavaPlugin implements Listener {
             any_err = true;
         }
         else for (Map.Entry<String,?> entry : cfg_blocks.getValues(true).entrySet()) {
+            String cfg_block_type = entry.getKey();
             for (LinkedHashMap<String,?> data : (List<LinkedHashMap<String,?>>) entry.getValue()) {
                 List<String> commands = (List<String>) data.get("commands");
                 if ((commands == null) || commands.isEmpty())
-                    print_warn("Command list is empty for block \"" + entry.getKey() + "\"");
+                    print_warn("Command list is empty for block \"" + cfg_block_type + "\"");
 
-                Object cfg_chance = data.get("chance");
+                Number cfg_chance = (Number) data.get("chance");
                 if (cfg_chance == null) {
-                    print_error("Unspecified chance for block \"" + entry.getKey() + "\"");
+                    print_error("Unspecified chance for block \"" + cfg_block_type + "\"");
                     any_err = true;
                 }
                 else {
-                    double chance = ((Number)cfg_chance).doubleValue();
+                    double chance = cfg_chance.doubleValue();
                     if ((chance < 0.0) || (chance > 1.0)) {
-                        print_error("Invalid chance range for block \"" + entry.getKey() + "\"");
+                        print_error("Invalid chance range for block \"" + cfg_block_type + "\"");
                         any_err = true;
                     }
                 }
