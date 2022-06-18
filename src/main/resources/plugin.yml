@@ -1,0 +1,4 @@
+name: MineCommand
+version: '${project.version}'
+main: io.github.kvbc.minecommand.MineCommand
+api-version: 1.17

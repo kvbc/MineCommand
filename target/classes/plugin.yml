@@ -1,0 +1,4 @@
+name: MineCommand
+version: '1.0'
+main: io.github.kvbc.minecommand.MineCommand
+api-version: 1.17

@@ -1,0 +1,20 @@
+blocks:
+  stone:
+    -
+      chance: 0.5 #50%
+      commands:
+        - "say Holy cow! %player% has mined %block%!"
+    -
+      chance: 0.01 #1%
+      commands:
+        - "say Okay, %player%... that's rare"
+    -
+      chance: 0.25 #25%
+      commands:
+        - "say nice, you had 25% chance for that, %player%!"
+  tnt:
+    -
+      chance: 1 #100%
+      commands:
+        - "say be careful with that!"
+        - "say test"
