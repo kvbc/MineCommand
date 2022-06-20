@@ -18,3 +18,7 @@ blocks:
       commands:
         - "say be careful with that!"
         - "say test"
+      messages_player:
+        - "&cU mined %block%!"
+      messages_server:
+        - "&6%player% has mined %block%"
