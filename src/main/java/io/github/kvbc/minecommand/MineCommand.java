@@ -3,8 +3,10 @@ package io.github.kvbc.minecommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandException;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -19,6 +21,12 @@ public final class MineCommand extends JavaPlugin implements Listener {
 
     private void print_warn (String msg) {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "[MineCommand] " + msg);
+    }
+
+    private String format_config_string (String s, Player plr, Block block) {
+        s = s.replaceAll("%player%",plr.getName())
+             .replaceAll("%block%", block.getType().toString().toLowerCase());
+        return ChatColor.translateAlternateColorCodes('&', s);
     }
 
     @Override
@@ -64,11 +72,13 @@ public final class MineCommand extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBlockBreak (BlockBreakEvent event) {
-        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL)
+        Player plr = event.getPlayer();
+        Block block = event.getBlock();
+        if (plr.getGameMode() != GameMode.SURVIVAL)
             return;
 
         // Get the block of matching type from the blocks list
-        String block_type = event.getBlock().getType().toString().toLowerCase();
+        String block_type = block.getType().toString().toLowerCase();
         List<LinkedHashMap<String,?>> cfg_block = (List<LinkedHashMap<String,?>>) getConfig().get("blocks." + block_type);
         if (cfg_block == null)
             return;
@@ -83,17 +93,39 @@ public final class MineCommand extends JavaPlugin implements Listener {
         for (LinkedHashMap<String,?> data : cfg_block) {
             double chance = ((Number)data.get("chance")).doubleValue();
             if (random <= chance) {
+                //
+                // Commands
+                //
                 List<String> commands = (List<String>) data.get("commands");
-                if (commands == null)
-                    continue;
-                for (String command : commands) {
-                    command = command.replaceAll("%player%", event.getPlayer().getName());
-                    command = command.replaceAll("%block%", block_type);
-                    try {
-                        getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-                    } catch (CommandException e) {
-                        print_error("Exception when executing command \"" + command + "\" : " + e.getMessage());
-                        return;
+                if (commands != null) {
+                    for (String command : commands) {
+                        command = format_config_string(command, plr, block);
+                        try {
+                            getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+                        } catch (CommandException e) {
+                            print_error("Exception when executing command \"" + command + "\" : " + e.getMessage());
+                            return;
+                        }
+                    }
+                }
+                //
+                // Messages Player
+                //
+                List<String> messages_player = (List<String>) data.get("messages_player");
+                if (messages_player != null) {
+                    for (String msg : messages_player) {
+                        msg = format_config_string(msg, plr, block);
+                        event.getPlayer().sendMessage(msg);
+                    }
+                }
+                //
+                // Messages Server
+                //
+                List<String> messages_server = (List<String>) data.get("messages_server");
+                if (messages_server != null) {
+                    for (String msg : messages_server) {
+                        msg = format_config_string(msg, plr, block);
+                        getServer().broadcastMessage(msg);
                     }
                 }
                 break;
